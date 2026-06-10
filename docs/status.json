@@ -1,4 +1,23 @@
 {
-  "generated_at": null,
-  "patches": []
+  "generated_at": "2026-06-10T20:44:23+00:00",
+  "patches": [
+    {
+      "id": "example-fix-title",
+      "title": "example: fix title to track",
+      "stable_branches": [
+        "linux-6.6.y"
+      ],
+      "enabled": false,
+      "last_checked_at": "2026-06-10T20:44:23+00:00",
+      "mainline": {
+        "found": false,
+        "commit": null
+      },
+      "stable": {
+        "found": false,
+        "branches": []
+      },
+      "errors": []
+    }
+  ]
 }
