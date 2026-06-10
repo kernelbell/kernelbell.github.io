@@ -1,6 +1,6 @@
 # kernelbell.github.io
 
-kernelbell tracks whether Linux kernel patches have landed in mainline and a selected stable branch. It is designed to run entirely on GitHub Actions, with GitHub Pages as the small status and editing UI.
+kernelbell tracks whether Linux kernel patches have landed in mainline and selected stable branches. It is designed to run entirely on GitHub Actions, with GitHub Pages as the small status and editing UI.
 
 ## How it works
 
@@ -20,7 +20,7 @@ Edit `patches.json` directly, or use the Pages UI with a GitHub token that has `
   {
     "id": "fix-important-bug",
     "title": "subsystem: fix important bug",
-    "stable_branch": "linux-6.6.y",
+    "stable_branches": ["linux-6.6.y", "linux-6.1.y"],
     "notify": ["you@example.com"],
     "enabled": true
   }
@@ -28,6 +28,8 @@ Edit `patches.json` directly, or use the Pages UI with a GitHub token that has `
 ```
 
 The title is matched against the commit subject. Matching is case-insensitive, but the normalized subject must equal the normalized title.
+
+Each patch can set up to 3 stable branches in `stable_branches`. The legacy `stable_branch` string is still accepted for older entries.
 
 ## GitHub setup
 

@@ -50,6 +50,20 @@ function patchKey(patch) {
   return patch.id || patch.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
 }
 
+function stableBranches(patch) {
+  const raw = patch.stable_branches ?? patch.stable_branch ?? [];
+  const values = Array.isArray(raw) ? raw : String(raw).split(",");
+  return [...new Set(values.map((item) => String(item).trim()).filter(Boolean))].slice(0, 3);
+}
+
+function stableStatusBranches(patch, state) {
+  if (Array.isArray(state?.stable?.branches)) return state.stable.branches;
+  if (state?.stable) {
+    return [{ branch: stableBranches(patch)[0] || "stable", found: Boolean(state.stable.found), commit: state.stable.commit || null }];
+  }
+  return stableBranches(patch).map((branch) => ({ branch, found: false, commit: null }));
+}
+
 async function loadJson(path, fallback) {
   const response = await fetch(`${path}?t=${Date.now()}`, { cache: "no-store" });
   if (!response.ok) return fallback;
@@ -87,7 +101,7 @@ function render() {
   const rows = patches.map((patch) => ({ patch, state: statusFor(patch) }));
   els.total.textContent = String(patches.length);
   els.mainline.textContent = String(rows.filter((row) => row.state?.mainline?.found).length);
-  els.stable.textContent = String(rows.filter((row) => row.state?.stable?.found).length);
+  els.stable.textContent = String(rows.filter((row) => stableStatusBranches(row.patch, row.state).some((branch) => branch.found)).length);
   els.generated.textContent = formatDate(status.generated_at);
 
   if (!patches.length) {
@@ -101,15 +115,17 @@ function render() {
   rows.forEach(({ patch, state }) => {
     const node = els.template.content.cloneNode(true);
     const card = node.querySelector(".patch-card");
+    const branches = stableBranches(patch);
+    const stableRows = stableStatusBranches(patch, state);
     card.querySelector("h3").textContent = patch.title;
-    card.querySelector(".meta").textContent = `${patch.stable_branch || "no stable branch"} - ${patch.enabled === false ? "disabled" : "enabled"}`;
+    card.querySelector(".meta").textContent = `${branches.join(", ") || "no stable branches"} - ${patch.enabled === false ? "disabled" : "enabled"}`;
 
     const badges = card.querySelector(".badges");
     badges.append(badge("mainline", Boolean(state?.mainline?.found), false));
-    badges.append(badge(patch.stable_branch || "stable", Boolean(state?.stable?.found), false));
+    stableRows.forEach((branch) => badges.append(badge(branch.branch, Boolean(branch.found), false)));
     if (patch.enabled === false) badges.append(badge("disabled", false, true));
 
-    const commit = state?.stable?.commit || state?.mainline?.commit;
+    const commit = stableRows.find((branch) => branch.commit)?.commit || state?.mainline?.commit;
     card.querySelector(".commit").textContent = commit ? `${commit.hash}\n${commit.subject}\n${commit.committed_at}` : "Not found yet";
     card.querySelector(".delete-button").addEventListener("click", () => removePatch(patch));
     els.list.append(node);
@@ -154,15 +170,19 @@ async function addPatch(event) {
   event.preventDefault();
   const form = new FormData(els.form);
   const title = form.get("title").trim();
-  const stableBranch = form.get("stable_branch").trim();
+  const branches = String(form.get("stable_branches") || "").split(",").map((item) => item.trim()).filter(Boolean);
   const notify = form.get("notify").trim();
   if (!title) return;
+  if (branches.length > 3) {
+    setMessage("Stable branches cannot exceed 3.");
+    return;
+  }
   const next = [
     ...patches,
     {
       id: patchKey({ title }),
       title,
-      stable_branch: stableBranch,
+      stable_branches: [...new Set(branches)],
       notify: notify ? [notify] : [],
       enabled: true,
     },

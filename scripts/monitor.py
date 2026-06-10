@@ -48,6 +48,20 @@ def patch_id(patch):
     return "".join(ch if ch.isalnum() else "-" for ch in normalized).strip("-")[:80]
 
 
+def stable_branches_for(patch):
+    raw = patch.get("stable_branches")
+    if raw is None:
+        raw = patch.get("stable_branch", [])
+    if isinstance(raw, str):
+        raw = [item.strip() for item in raw.split(",")]
+    branches = []
+    for branch in raw or []:
+        branch = str(branch).strip()
+        if branch and branch not in branches:
+            branches.append(branch)
+    return branches[:3], len(branches) > 3
+
+
 def run_git(args, git_dir=None, check=True):
     cmd = ["git"]
     if git_dir:
@@ -166,13 +180,13 @@ def notify_if_new(patch, target, commit, state):
         return False
 
     title = patch["title"]
-    stable_branch = patch.get("stable_branch") or ""
+    stable_branches, _ = stable_branches_for(patch)
     subject = f"[kernelbell] Patch merged in {target}: {title}"
     body = "\n".join(
         [
             f"Patch title: {title}",
             f"Target: {target}",
-            f"Stable branch: {stable_branch or 'n/a'}",
+            f"Stable branches: {', '.join(stable_branches) or 'n/a'}",
             f"Commit: {commit['hash']}",
             f"Subject: {commit['subject']}",
             f"Author: {commit['author']}",
@@ -193,24 +207,26 @@ def check_patches():
     state = load_json(STATE_FILE, {"notified": {}})
     active_patches = [patch for patch in patches if patch.get("enabled", True) and patch.get("title", "").strip()]
     mainline_repo = ensure_repo("mainline", MAINLINE_REPO) if active_patches else None
-    stable_repo = ensure_repo("stable", STABLE_REPO) if any((patch.get("stable_branch") or "").strip() for patch in active_patches) else None
+    stable_repo = ensure_repo("stable", STABLE_REPO) if any(stable_branches_for(patch)[0] for patch in active_patches) else None
 
     results = []
     for patch in patches:
         pid = patch_id(patch)
         enabled = patch.get("enabled", True)
         title = patch.get("title", "").strip()
-        stable_branch = (patch.get("stable_branch") or "").strip()
+        stable_branches, too_many_stable_branches = stable_branches_for(patch)
         result = {
             "id": pid,
             "title": title,
-            "stable_branch": stable_branch,
+            "stable_branches": stable_branches,
             "enabled": enabled,
             "last_checked_at": now_iso(),
             "mainline": {"found": False, "commit": None},
-            "stable": {"found": False, "commit": None},
+            "stable": {"found": False, "branches": []},
             "errors": [],
         }
+        if too_many_stable_branches:
+            result["errors"].append("only the first 3 stable branches are checked")
 
         if not enabled:
             results.append(result)
@@ -228,14 +244,17 @@ def check_patches():
         except Exception as exc:
             result["errors"].append(f"mainline check failed: {exc}")
 
-        if stable_branch:
+        for stable_branch in stable_branches:
+            branch_result = {"branch": stable_branch, "found": False, "commit": None}
             try:
                 stable_commit = find_commit_by_title(stable_repo, stable_branch, title)
                 if stable_commit:
-                    result["stable"] = {"found": True, "commit": stable_commit}
+                    branch_result = {"branch": stable_branch, "found": True, "commit": stable_commit}
+                    result["stable"]["found"] = True
                     notify_if_new(patch, stable_branch, stable_commit, state)
             except Exception as exc:
-                result["errors"].append(f"stable check failed: {exc}")
+                result["errors"].append(f"stable {stable_branch} check failed: {exc}")
+            result["stable"]["branches"].append(branch_result)
 
         results.append(result)
 
