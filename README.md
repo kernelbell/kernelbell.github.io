@@ -1,1 +1,69 @@
 # kernelbell.github.io
+
+kernelbell tracks whether Linux kernel patches have landed in mainline and a selected stable branch. It is designed to run entirely on GitHub Actions, with GitHub Pages as the small status and editing UI.
+
+## How it works
+
+- `patches.json` is the tracked patch list.
+- `.github/workflows/monitor.yml` runs every 6 hours and can also be triggered manually.
+- `scripts/monitor.py` fetches Linux mainline and stable git repositories, then matches commits by exact commit subject/title.
+- `state.json` records which commits already triggered mail, so duplicate notifications are avoided.
+- `docs/status.json` is generated for the GitHub Pages UI.
+- `docs/` contains the GitHub Pages frontend.
+
+## Patch list
+
+Edit `patches.json` directly, or use the Pages UI with a GitHub token that has `contents: read/write` access to this repository.
+
+```json
+[
+  {
+    "id": "fix-important-bug",
+    "title": "subsystem: fix important bug",
+    "stable_branch": "linux-6.6.y",
+    "notify": ["you@example.com"],
+    "enabled": true
+  }
+]
+```
+
+The title is matched against the commit subject. Matching is case-insensitive, but the normalized subject must equal the normalized title.
+
+## GitHub setup
+
+1. Push this repository to GitHub.
+2. Open repository settings and enable GitHub Pages from the `docs/` directory on the `main` branch.
+3. Add SMTP secrets in `Settings -> Secrets and variables -> Actions`.
+4. Run the `kernelbell` workflow manually once from the Actions tab.
+
+Required mail secret:
+
+- `SMTP_HOST`
+
+Optional mail secrets:
+
+- `SMTP_PORT`, default `587`
+- `SMTP_USER`
+- `SMTP_PASS`
+- `SMTP_FROM`
+- `SMTP_TLS`, default `true`
+- `KERNELBELL_NOTIFY_TO`, comma-separated fallback recipients when a patch has no `notify`
+
+Optional repository variables:
+
+- `KERNELBELL_MAINLINE_REPO`, default `https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git`
+- `KERNELBELL_STABLE_REPO`, default `https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git`
+
+## Frontend editing
+
+The Pages UI can add and delete patches by calling the GitHub Contents API. Create a fine-grained personal access token with access to this repository and `Contents: Read and write`, then paste it into the token field. The token is stored only in your browser when you choose `Remember token`.
+
+After editing the list, wait for the next scheduled workflow or trigger `kernelbell` manually.
+
+## Local check
+
+```bash
+python3 scripts/monitor.py
+```
+
+The first run fetches filtered bare clones of the Linux repositories into `.kernelbell-cache/`, which can take a while.
