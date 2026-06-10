@@ -6,7 +6,8 @@ kernelbell tracks whether Linux kernel patches have landed in mainline and selec
 
 - `patches.json` is the tracked patch list.
 - `.github/workflows/monitor.yml` runs every 6 hours and can also be triggered manually.
-- `scripts/monitor.py` fetches Linux mainline and stable git repositories, then matches commits by exact commit subject/title.
+- `scripts/monitor.py` reads commit metadata from the GitHub commits API, then matches commits by exact commit subject/title.
+- No git clone or fetch is used; no source code is downloaded.
 - `state.json` records which commits already triggered mail, so duplicate notifications are avoided.
 - `docs/status.json` is generated for the GitHub Pages UI.
 - `docs/` contains the GitHub Pages frontend.
@@ -53,8 +54,9 @@ Optional mail secrets:
 
 Optional repository variables:
 
-- `KERNELBELL_MAINLINE_REPO`, default `https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git`
-- `KERNELBELL_STABLE_REPO`, default `https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git`
+- `KERNELBELL_MAINLINE_GITHUB_REPO`, default `torvalds/linux`
+- `KERNELBELL_STABLE_GITHUB_REPO`, default `gregkh/linux`
+- `KERNELBELL_LOOKBACK_COMMITS`, default `1000`
 
 ## Frontend editing
 
@@ -68,4 +70,4 @@ After editing the list, wait for the next scheduled workflow or trigger `kernelb
 python3 scripts/monitor.py
 ```
 
-The first run fetches filtered bare clones of the Linux repositories into `.kernelbell-cache/`, which can take a while.
+The check uses GitHub commit metadata only. Increase `KERNELBELL_LOOKBACK_COMMITS` if you need to find older commits when adding an already-merged patch.

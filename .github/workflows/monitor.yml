@@ -19,16 +19,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Restore git cache
-        uses: actions/cache@v4
-        with:
-          path: .kernelbell-cache
-          key: kernelbell-git-cache-v1
-          restore-keys: |
-            kernelbell-git-cache-
-
       - name: Check patches
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
@@ -36,8 +29,9 @@ jobs:
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
           SMTP_TLS: ${{ secrets.SMTP_TLS }}
           KERNELBELL_NOTIFY_TO: ${{ secrets.KERNELBELL_NOTIFY_TO }}
-          KERNELBELL_MAINLINE_REPO: ${{ vars.KERNELBELL_MAINLINE_REPO }}
-          KERNELBELL_STABLE_REPO: ${{ vars.KERNELBELL_STABLE_REPO }}
+          KERNELBELL_MAINLINE_GITHUB_REPO: ${{ vars.KERNELBELL_MAINLINE_GITHUB_REPO }}
+          KERNELBELL_STABLE_GITHUB_REPO: ${{ vars.KERNELBELL_STABLE_GITHUB_REPO }}
+          KERNELBELL_LOOKBACK_COMMITS: ${{ vars.KERNELBELL_LOOKBACK_COMMITS }}
         run: python3 scripts/monitor.py
 
       - name: Commit status updates

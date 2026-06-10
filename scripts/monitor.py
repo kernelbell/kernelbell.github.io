@@ -2,21 +2,24 @@
 import json
 import os
 import smtplib
-import subprocess
 import sys
 from datetime import datetime, timezone
 from email.message import EmailMessage
 from pathlib import Path
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PATCHES_FILE = ROOT / "patches.json"
 STATE_FILE = ROOT / "state.json"
 STATUS_FILE = ROOT / "docs" / "status.json"
-CACHE_DIR = ROOT / ".kernelbell-cache"
 
-MAINLINE_REPO = os.environ.get("KERNELBELL_MAINLINE_REPO") or "https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
-STABLE_REPO = os.environ.get("KERNELBELL_STABLE_REPO") or "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
+MAINLINE_GITHUB_REPO = os.environ.get("KERNELBELL_MAINLINE_GITHUB_REPO") or "torvalds/linux"
+STABLE_GITHUB_REPO = os.environ.get("KERNELBELL_STABLE_GITHUB_REPO") or "gregkh/linux"
+LOOKBACK_COMMITS = int(os.environ.get("KERNELBELL_LOOKBACK_COMMITS") or "1000")
+GITHUB_TOKEN = os.environ.get("KERNELBELL_GITHUB_TOKEN") or os.environ.get("GITHUB_TOKEN")
 
 
 def now_iso():
@@ -62,69 +65,54 @@ def stable_branches_for(patch):
     return branches[:3], len(branches) > 3
 
 
-def run_git(args, git_dir=None, check=True):
-    cmd = ["git"]
-    if git_dir:
-        cmd.extend(["--git-dir", str(git_dir)])
-    cmd.extend(args)
-    proc = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if check and proc.returncode != 0:
-        raise RuntimeError(f"git command failed: {' '.join(cmd)}\n{proc.stderr.strip()}")
-    return proc.stdout.strip()
-
-
-def ensure_repo(name, url):
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    repo = CACHE_DIR / f"{name}.git"
-    if not repo.exists():
-        subprocess.run(
-            ["git", "clone", "--bare", "--filter=blob:none", "--no-tags", url, str(repo)],
-            check=True,
-        )
-    else:
-        run_git(["remote", "set-url", "origin", url], git_dir=repo)
-    run_git(["fetch", "--prune", "--no-tags", "origin", "+refs/heads/*:refs/heads/*"], git_dir=repo)
-    return repo
-
-
-def ref_exists(repo, ref):
-    proc = subprocess.run(
-        ["git", "--git-dir", str(repo), "rev-parse", "--verify", "--quiet", ref],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    return proc.returncode == 0
+def github_get(repo, path, query):
+    url = f"https://api.github.com/repos/{repo}/{path}?{urlencode(query)}"
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "kernelbell",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    if GITHUB_TOKEN:
+        headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
+    request = Request(url, headers=headers)
+    try:
+        with urlopen(request, timeout=30) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        details = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"GitHub API failed for {repo}/{path}: HTTP {exc.code} {details}") from exc
+    except URLError as exc:
+        raise RuntimeError(f"GitHub API failed for {repo}/{path}: {exc.reason}") from exc
 
 
 def find_commit_by_title(repo, ref, title):
-    if not ref_exists(repo, ref):
-        return None
-    output = run_git(
-        [
-            "log",
-            ref,
-            "--fixed-strings",
-            "--regexp-ignore-case",
-            f"--grep={title}",
-            "--max-count=30",
-            "--format=%H%x1f%s%x1f%ci%x1f%an",
-        ],
-        git_dir=repo,
-        check=False,
-    )
     target = normalize_title(title)
-    for line in output.splitlines():
-        parts = line.split("\x1f")
-        if len(parts) != 4:
-            continue
-        commit_hash, subject, committed_at, author = parts
-        if normalize_title(subject) == target:
+    per_page = 100
+    pages = max(1, (LOOKBACK_COMMITS + per_page - 1) // per_page)
+    checked = 0
+    for page in range(1, pages + 1):
+        commits = github_get(repo, "commits", {"sha": ref, "per_page": per_page, "page": page})
+        if not commits:
+            break
+        for item in commits:
+            checked += 1
+            commit = item.get("commit", {})
+            subject = commit.get("message", "").splitlines()[0]
+            author = commit.get("author") or {}
+            commit_hash = item.get("sha", "")
+            committed_at = author.get("date", "")
+            author_name = author.get("name", "")
+            if checked > LOOKBACK_COMMITS:
+                return None
+            if normalize_title(subject) != target:
+                continue
             return {
                 "hash": commit_hash,
                 "subject": subject,
                 "committed_at": committed_at,
-                "author": author,
+                "author": author_name,
                 "ref": ref,
+                "url": item.get("html_url"),
             }
     return None
 
@@ -205,9 +193,6 @@ def notify_if_new(patch, target, commit, state):
 def check_patches():
     patches = load_json(PATCHES_FILE, [])
     state = load_json(STATE_FILE, {"notified": {}})
-    active_patches = [patch for patch in patches if patch.get("enabled", True) and patch.get("title", "").strip()]
-    mainline_repo = ensure_repo("mainline", MAINLINE_REPO) if active_patches else None
-    stable_repo = ensure_repo("stable", STABLE_REPO) if any(stable_branches_for(patch)[0] for patch in active_patches) else None
 
     results = []
     for patch in patches:
@@ -237,7 +222,7 @@ def check_patches():
             continue
 
         try:
-            mainline_commit = find_commit_by_title(mainline_repo, "master", title)
+            mainline_commit = find_commit_by_title(MAINLINE_GITHUB_REPO, "master", title)
             if mainline_commit:
                 result["mainline"] = {"found": True, "commit": mainline_commit}
                 notify_if_new(patch, "mainline", mainline_commit, state)
@@ -247,7 +232,7 @@ def check_patches():
         for stable_branch in stable_branches:
             branch_result = {"branch": stable_branch, "found": False, "commit": None}
             try:
-                stable_commit = find_commit_by_title(stable_repo, stable_branch, title)
+                stable_commit = find_commit_by_title(STABLE_GITHUB_REPO, stable_branch, title)
                 if stable_commit:
                     branch_result = {"branch": stable_branch, "found": True, "commit": stable_commit}
                     result["stable"]["found"] = True
