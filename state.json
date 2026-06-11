@@ -1,3 +1,8 @@
 {
-  "notified": {}
+  "notified": {
+    "reject-unknown-flags-in-pr-set-cfi": {
+      "mainline": "15b4155138505669d3d43d7692459ee8ea2a86e7",
+      "mainline_notified_at": "2026-06-11T02:12:52+00:00"
+    }
+  }
 }

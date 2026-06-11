@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-11T02:02:06+00:00",
+  "generated_at": "2026-06-11T02:12:52+00:00",
   "patches": [
     {
       "id": "fix-double-dst-release-on-sk-dst-cache-race",
@@ -12,7 +12,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-11T02:01:31+00:00",
+      "last_checked_at": "2026-06-11T02:12:23+00:00",
       "mainline": {
         "enabled": true,
         "found": false,
@@ -42,7 +42,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-11T02:01:46+00:00",
+      "last_checked_at": "2026-06-11T02:12:37+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -73,11 +73,19 @@
       ],
       "stable_branches": [],
       "enabled": true,
-      "last_checked_at": "2026-06-11T02:02:00+00:00",
+      "last_checked_at": "2026-06-11T02:12:50+00:00",
       "mainline": {
         "enabled": true,
-        "found": false,
-        "commit": null
+        "found": true,
+        "commit": {
+          "hash": "15b4155138505669d3d43d7692459ee8ea2a86e7",
+          "subject": "riscv: cfi: reject unknown flags in PR_SET_CFI",
+          "committed_at": "2026-05-18T18:39:18.000Z",
+          "author": "Richard Patel",
+          "ref": "master",
+          "url": "https://github.com/torvalds/linux/commit/15b4155138505669d3d43d7692459ee8ea2a86e7",
+          "match_type": "search-suffix-after-prefix"
+        }
       },
       "stable": {
         "found": false,
