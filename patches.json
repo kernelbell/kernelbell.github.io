@@ -10,5 +10,17 @@
       "lixiasong1@huawei.com"
     ],
     "enabled": true
+  },
+  {
+    "id": "ioam6-iptunnel-mitigate-2-realloc-issue",
+    "title": "ioam6_iptunnel: mitigate 2-realloc issue",
+    "targets": [
+      "linux-5.10.y",
+      "linux-6.6.y"
+    ],
+    "notify": [
+      "lixiasong1@huawei.com"
+    ],
+    "enabled": true
   }
 ]
