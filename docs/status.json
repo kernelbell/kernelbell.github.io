@@ -1,15 +1,81 @@
 {
-  "generated_at": "2026-06-10T20:44:23+00:00",
+  "generated_at": "2026-06-11T02:02:06+00:00",
   "patches": [
     {
-      "id": "example-fix-title",
-      "title": "example: fix title to track",
+      "id": "fix-double-dst-release-on-sk-dst-cache-race",
+      "title": "fix double dst_release() on sk_dst_cache race",
+      "targets": [
+        "mainline",
+        "linux-6.6.y"
+      ],
       "stable_branches": [
         "linux-6.6.y"
       ],
-      "enabled": false,
-      "last_checked_at": "2026-06-10T20:44:23+00:00",
+      "enabled": true,
+      "last_checked_at": "2026-06-11T02:01:31+00:00",
       "mainline": {
+        "enabled": true,
+        "found": false,
+        "commit": null
+      },
+      "stable": {
+        "found": false,
+        "branches": [
+          {
+            "branch": "linux-6.6.y",
+            "found": false,
+            "commit": null
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "ioam6-iptunnel-mitigate-2-realloc-issue",
+      "title": "ioam6_iptunnel: mitigate 2-realloc issue",
+      "targets": [
+        "linux-5.10.y",
+        "linux-6.6.y"
+      ],
+      "stable_branches": [
+        "linux-5.10.y",
+        "linux-6.6.y"
+      ],
+      "enabled": true,
+      "last_checked_at": "2026-06-11T02:01:46+00:00",
+      "mainline": {
+        "enabled": false,
+        "found": false,
+        "commit": null
+      },
+      "stable": {
+        "found": false,
+        "branches": [
+          {
+            "branch": "linux-5.10.y",
+            "found": false,
+            "commit": null
+          },
+          {
+            "branch": "linux-6.6.y",
+            "found": false,
+            "commit": null
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "reject-unknown-flags-in-pr-set-cfi",
+      "title": "reject unknown flags in PR_SET_CFI",
+      "targets": [
+        "mainline"
+      ],
+      "stable_branches": [],
+      "enabled": true,
+      "last_checked_at": "2026-06-11T02:02:00+00:00",
+      "mainline": {
+        "enabled": true,
         "found": false,
         "commit": null
       },
