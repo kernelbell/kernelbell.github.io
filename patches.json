@@ -22,5 +22,16 @@
       "lixiasong1@huawei.com"
     ],
     "enabled": true
+  },
+  {
+    "id": "reject-unknown-flags-in-pr-set-cfi",
+    "title": "reject unknown flags in PR_SET_CFI",
+    "targets": [
+      "mainline"
+    ],
+    "notify": [
+      "lixiasong1@huawei.com"
+    ],
+    "enabled": true
   }
 ]
