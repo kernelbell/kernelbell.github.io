@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from email.message import EmailMessage
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import quote_plus, urlencode
 from urllib.request import Request, urlopen
 
 
@@ -89,6 +89,10 @@ def stable_branches_for(patch):
 
 def github_get(repo, path, query):
     url = f"https://api.github.com/repos/{repo}/{path}?{urlencode(query)}"
+    return github_get_url(url)
+
+
+def github_get_url(url):
     headers = {
         "Accept": "application/vnd.github+json",
         "User-Agent": "kernelbell",
@@ -102,40 +106,99 @@ def github_get(repo, path, query):
             return json.loads(response.read().decode("utf-8"))
     except HTTPError as exc:
         details = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"GitHub API failed for {repo}/{path}: HTTP {exc.code} {details}") from exc
+        raise RuntimeError(f"GitHub API failed for {url}: HTTP {exc.code} {details}") from exc
     except URLError as exc:
-        raise RuntimeError(f"GitHub API failed for {repo}/{path}: {exc.reason}") from exc
+        raise RuntimeError(f"GitHub API failed for {url}: {exc.reason}") from exc
+
+
+def commit_from_item(item, ref, match_type):
+    commit = item.get("commit", {})
+    subject = commit.get("message", "").splitlines()[0]
+    author = commit.get("author") or {}
+    return {
+        "hash": item.get("sha", ""),
+        "subject": subject,
+        "committed_at": author.get("date", ""),
+        "author": author.get("name", ""),
+        "ref": ref,
+        "url": item.get("html_url"),
+        "match_type": match_type,
+    }
+
+
+def title_matches(subject, title):
+    normalized_subject = normalize_title(subject)
+    normalized_title = normalize_title(title)
+    if normalized_subject == normalized_title:
+        return "exact"
+    if normalized_subject.endswith(f": {normalized_title}"):
+        return "suffix-after-prefix"
+    if normalized_subject.endswith(normalized_title):
+        return "suffix"
+    return None
+
+
+def search_commits_by_title(repo, ref, title):
+    terms = " ".join(normalize_title(title).split()[:8])
+    if not terms:
+        return None
+    query = f"repo:{repo} {terms}"
+    url = f"https://api.github.com/search/commits?q={quote_plus(query)}&per_page=20"
+    data = github_get_url(url)
+    items = data.get("items", [])
+    print(f"    search: query={query!r}, results={data.get('total_count', 0)}, checked={len(items)}")
+    fallback = None
+    for item in items:
+        commit = commit_from_item(item, ref, "search")
+        match_type = title_matches(commit["subject"], title)
+        if match_type:
+            commit["match_type"] = f"search-{match_type}"
+            return commit
+        if fallback is None and normalize_title(title) in normalize_title(item.get("commit", {}).get("message", "")):
+            fallback = commit
+            fallback["match_type"] = "search-message-contains"
+    return fallback
 
 
 def find_commit_by_title(repo, ref, title):
+    if repo == MAINLINE_GITHUB_REPO and ref == "master":
+        search_commit = search_commits_by_title(repo, ref, title)
+        if search_commit:
+            return search_commit
+
     target = normalize_title(title)
     per_page = 100
     pages = max(1, (LOOKBACK_COMMITS + per_page - 1) // per_page)
     checked = 0
+    latest_subjects = []
     for page in range(1, pages + 1):
         commits = github_get(repo, "commits", {"sha": ref, "per_page": per_page, "page": page})
         if not commits:
             break
         for item in commits:
             checked += 1
-            commit = item.get("commit", {})
-            subject = commit.get("message", "").splitlines()[0]
-            author = commit.get("author") or {}
-            commit_hash = item.get("sha", "")
-            committed_at = author.get("date", "")
-            author_name = author.get("name", "")
+            commit = commit_from_item(item, ref, "list")
+            subject = commit["subject"]
+            if len(latest_subjects) < 5:
+                latest_subjects.append(subject)
             if checked > LOOKBACK_COMMITS:
+                print(f"    list: checked={checked - 1}, limit={LOOKBACK_COMMITS}, no match")
+                if latest_subjects:
+                    print("    latest subjects:")
+                    for latest in latest_subjects:
+                        print(f"      - {latest}")
                 return None
-            if normalize_title(subject) != target:
+            match_type = title_matches(subject, title)
+            if not match_type:
                 continue
-            return {
-                "hash": commit_hash,
-                "subject": subject,
-                "committed_at": committed_at,
-                "author": author_name,
-                "ref": ref,
-                "url": item.get("html_url"),
-            }
+            commit["match_type"] = f"list-{match_type}"
+            print(f"    list: checked={checked}, matched={match_type}")
+            return commit
+    print(f"    list: checked={checked}, no match")
+    if latest_subjects:
+        print("    latest subjects:")
+        for latest in latest_subjects:
+            print(f"      - {latest}")
     return None
 
 
@@ -200,11 +263,11 @@ def send_test_email(recipient):
 
 def notify_if_new(patch, target, commit, state):
     if not commit:
-        return False
+        return "not-found"
     pid = patch_id(patch)
     notified = state.setdefault("notified", {}).setdefault(pid, {})
     if notified.get(target) == commit["hash"]:
-        return False
+        return "already-notified"
 
     title = patch["title"]
     targets = targets_for(patch)
@@ -225,14 +288,15 @@ def notify_if_new(patch, target, commit, state):
     if send_email(recipients_for(patch), subject, body):
         notified[target] = commit["hash"]
         notified[f"{target}_notified_at"] = now_iso()
-        return True
-    return False
+        return "sent"
+    return "send-skipped-or-failed"
 
 
 def check_patches():
     patches = load_json(PATCHES_FILE, [])
     state = load_json(STATE_FILE, {"notified": {}})
 
+    print(f"kernelbell: loaded {len(patches)} patch(es), lookback={LOOKBACK_COMMITS}")
     results = []
     for patch in patches:
         pid = patch_id(patch)
@@ -255,33 +319,55 @@ def check_patches():
         if too_many_stable_branches:
             result["errors"].append("only the first 3 stable branches are checked")
 
+        print(f"\npatch: {pid}")
+        print(f"  title: {title or '<missing>'}")
+        print(f"  enabled: {enabled}")
+        print(f"  targets: {', '.join(targets) or '<none>'}")
+        print(f"  notify: {', '.join(recipients_for(patch)) or '<none>'}")
+
         if not enabled:
+            print("  skip: patch disabled")
             results.append(result)
             continue
         if not title:
+            print("  skip: title missing")
             result["errors"].append("title is required")
             results.append(result)
             continue
 
         if mainline_enabled:
             try:
+                print(f"  checking mainline: repo={MAINLINE_GITHUB_REPO}, ref=master")
                 mainline_commit = find_commit_by_title(MAINLINE_GITHUB_REPO, "master", title)
                 if mainline_commit:
                     result["mainline"] = {"enabled": True, "found": True, "commit": mainline_commit}
-                    notify_if_new(patch, "mainline", mainline_commit, state)
+                    notify_result = notify_if_new(patch, "mainline", mainline_commit, state)
+                    print(f"  mainline: FOUND {mainline_commit['hash'][:12]} ({mainline_commit.get('match_type')})")
+                    print(f"  mainline: subject={mainline_commit['subject']}")
+                    print(f"  mainline: notify={notify_result}")
+                else:
+                    print("  mainline: not found")
             except Exception as exc:
                 result["errors"].append(f"mainline check failed: {exc}")
+                print(f"  mainline: ERROR {exc}")
 
         for stable_branch in stable_branches:
             branch_result = {"branch": stable_branch, "found": False, "commit": None}
             try:
+                print(f"  checking stable: repo={STABLE_GITHUB_REPO}, ref={stable_branch}")
                 stable_commit = find_commit_by_title(STABLE_GITHUB_REPO, stable_branch, title)
                 if stable_commit:
                     branch_result = {"branch": stable_branch, "found": True, "commit": stable_commit}
                     result["stable"]["found"] = True
-                    notify_if_new(patch, stable_branch, stable_commit, state)
+                    notify_result = notify_if_new(patch, stable_branch, stable_commit, state)
+                    print(f"  stable {stable_branch}: FOUND {stable_commit['hash'][:12]} ({stable_commit.get('match_type')})")
+                    print(f"  stable {stable_branch}: subject={stable_commit['subject']}")
+                    print(f"  stable {stable_branch}: notify={notify_result}")
+                else:
+                    print(f"  stable {stable_branch}: not found")
             except Exception as exc:
                 result["errors"].append(f"stable {stable_branch} check failed: {exc}")
+                print(f"  stable {stable_branch}: ERROR {exc}")
             result["stable"]["branches"].append(branch_result)
 
         results.append(result)
