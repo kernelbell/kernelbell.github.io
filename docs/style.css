@@ -183,6 +183,12 @@ input:focus {
   border-color: var(--accent);
 }
 
+.input-action {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
 .target-group {
   display: grid;
   gap: 8px;

@@ -7,6 +7,8 @@ const els = {
   setupToken: document.querySelector("#setup-token"),
   storeAdmin: document.querySelector("#store-admin"),
   testMail: document.querySelector("#test-mail"),
+  rememberEmail: document.querySelector("#remember-email"),
+  notify: document.querySelector("#notify"),
   repoName: document.querySelector("#repo-name"),
   refresh: document.querySelector("#refresh"),
   total: document.querySelector("#total-count"),
@@ -58,6 +60,11 @@ function cacheKey() {
   return `kernelbell-patches-${owner || "local"}-${repo || "preview"}`;
 }
 
+function emailKey() {
+  const { owner, repo } = repoInfo();
+  return `kernelbell-email-${owner || "local"}-${repo || "preview"}`;
+}
+
 function readCachedPatches() {
   try {
     return JSON.parse(localStorage.getItem(cacheKey()) || "[]");
@@ -68,6 +75,20 @@ function readCachedPatches() {
 
 function cachePatches(nextPatches) {
   localStorage.setItem(cacheKey(), JSON.stringify(nextPatches));
+}
+
+function rememberedEmail() {
+  return localStorage.getItem(emailKey()) || "";
+}
+
+function rememberEmail() {
+  const email = els.notify.value.trim();
+  if (!email) {
+    setMessage("Enter an email address first.");
+    return;
+  }
+  localStorage.setItem(emailKey(), email);
+  setMessage("Email remembered in this browser.");
 }
 
 function setMessage(text) {
@@ -346,8 +367,10 @@ async function addPatch(event) {
   ];
   setMessage("Saving patch...");
   try {
+    if (notify) localStorage.setItem(emailKey(), notify);
     await savePatches(next, `Track patch: ${title}`);
     els.form.reset();
+    els.notify.value = rememberedEmail();
     els.form.querySelector('[name="targets"][value="mainline"]').checked = true;
     els.form.querySelector('[name="targets"][value="linux-6.6.y"]').checked = true;
     setMessage("Patch saved. Run the workflow or wait for the next schedule.");
@@ -383,6 +406,7 @@ async function testMail() {
     return;
   }
   const { owner, repo } = repoInfo();
+  localStorage.setItem(emailKey(), testEmail);
   setMessage("Triggering mail test workflow...");
   try {
     const authToken = await adminToken();
@@ -416,8 +440,10 @@ els.form.addEventListener("submit", addPatch);
 els.refresh.addEventListener("click", loadData);
 els.storeAdmin.addEventListener("click", storeAdminToken);
 els.testMail.addEventListener("click", testMail);
+els.rememberEmail.addEventListener("click", rememberEmail);
 els.adminPassword.addEventListener("input", () => {
   unlockedToken = "";
 });
 
+els.notify.value = rememberedEmail();
 loadData().catch((error) => setMessage(error.message));
