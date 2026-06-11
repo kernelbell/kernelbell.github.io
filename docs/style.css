@@ -228,6 +228,17 @@ input:focus {
   grid-column: 1 / -1;
 }
 
+.email-field {
+  width: 100%;
+}
+
+#notify {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
 .small-check {
   margin-top: 2px;
 }
