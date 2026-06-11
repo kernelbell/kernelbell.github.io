@@ -181,6 +181,23 @@ def send_email(recipients, subject, body):
     return True
 
 
+def send_test_email(recipient):
+    recipients = [recipient.strip()] if recipient and recipient.strip() else recipients_for({})
+    subject = "[kernelbell] Mail test"
+    body = "\n".join(
+        [
+            "This is a kernelbell mail test.",
+            f"Generated at: {now_iso()}",
+            "",
+            "If you received this message, SMTP notification is working.",
+        ]
+    )
+    if send_email(recipients, subject, body):
+        print(f"Sent test email to {', '.join(recipients)}")
+        return 0
+    return 1
+
+
 def notify_if_new(patch, target, commit, state):
     if not commit:
         return False
@@ -276,6 +293,9 @@ def check_patches():
 
 
 def main():
+    if len(sys.argv) >= 2 and sys.argv[1] == "--test-mail":
+        recipient = sys.argv[2] if len(sys.argv) >= 3 else ""
+        return send_test_email(recipient)
     try:
         status = check_patches()
     except Exception as exc:

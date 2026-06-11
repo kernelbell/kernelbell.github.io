@@ -14,7 +14,7 @@ kernelbell tracks whether Linux kernel patches have landed in mainline and selec
 
 ## Patch list
 
-Edit `patches.json` directly, or use the Pages UI with a GitHub token that has `contents: read/write` access to this repository.
+Edit `patches.json` directly, or use the Pages UI after setting up an encrypted admin token.
 
 ```json
 [
@@ -60,7 +60,18 @@ Optional repository variables:
 
 ## Frontend editing
 
-The Pages UI loads `patches.json` through the GitHub Contents API to avoid raw CDN delay after edits. It can add and delete patches with a fine-grained personal access token that has access to this repository and `Contents: Read and write`. The token is stored only in your browser when you choose `Remember token`.
+The Pages UI loads `patches.json` through the GitHub Contents API to avoid raw CDN delay after edits. It can add and delete patches after you enter the admin password.
+
+Admin token setup:
+
+1. Create a fine-grained personal access token for this repository.
+2. Grant `Contents: Read and write` and `Actions: Read and write`.
+3. Open the Pages UI, enter an admin password, expand `Admin token setup`, paste the token, and click `Store encrypted token`.
+4. Future edits only require the admin password.
+
+The encrypted token is stored in `docs/admin.json`. The password is never committed, but the encrypted token file is public if this repository is public. Use a strong password and rotate the token if the password is shared.
+
+The `Test mail` button triggers the `kernelbell` workflow in `test-mail` mode. It requires the admin password and sends a test message to the email field.
 
 After editing the list, wait for the next scheduled workflow or trigger `kernelbell` manually.
 

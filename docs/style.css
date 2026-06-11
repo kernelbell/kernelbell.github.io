@@ -46,6 +46,24 @@ input {
   margin-bottom: 16px;
 }
 
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-mark {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  color: var(--accent);
+  fill: #e6f3ef;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .eyebrow {
   margin: 0 0 6px;
   color: var(--accent-dark);
@@ -92,12 +110,27 @@ h2 {
 }
 
 .metrics div {
+  position: relative;
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px 16px;
   background: var(--panel);
   box-shadow: var(--shadow);
+}
+
+.metric-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  color: rgba(20, 122, 99, 0.62);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .metrics span {
@@ -245,6 +278,29 @@ button:hover {
   margin: 12px 0 0;
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.setup-box {
+  margin-top: 12px;
+  border-top: 1px dashed var(--line);
+  padding-top: 12px;
+}
+
+.setup-box summary {
+  color: var(--accent-dark);
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+
+.setup-box label {
+  margin-top: 12px;
+}
+
+.hint {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.4;
 }
 
 #repo-name {

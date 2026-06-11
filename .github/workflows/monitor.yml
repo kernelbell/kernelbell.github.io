@@ -4,6 +4,18 @@ on:
   schedule:
     - cron: "17 */6 * * *"
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "Run mode"
+        required: false
+        default: "monitor"
+        type: choice
+        options:
+          - monitor
+          - test-mail
+      test_email:
+        description: "Email address for test-mail mode"
+        required: false
 
 permissions:
   contents: write
@@ -32,9 +44,15 @@ jobs:
           KERNELBELL_MAINLINE_GITHUB_REPO: ${{ vars.KERNELBELL_MAINLINE_GITHUB_REPO }}
           KERNELBELL_STABLE_GITHUB_REPO: ${{ vars.KERNELBELL_STABLE_GITHUB_REPO }}
           KERNELBELL_LOOKBACK_COMMITS: ${{ vars.KERNELBELL_LOOKBACK_COMMITS }}
-        run: python3 scripts/monitor.py
+        run: |
+          if [ "${{ github.event.inputs.mode }}" = "test-mail" ]; then
+            python3 scripts/monitor.py --test-mail "${{ github.event.inputs.test_email }}"
+          else
+            python3 scripts/monitor.py
+          fi
 
       - name: Commit status updates
+        if: ${{ github.event.inputs.mode != 'test-mail' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update kernelbell status"

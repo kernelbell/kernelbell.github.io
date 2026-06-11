@@ -3,10 +3,12 @@ const els = {
   template: document.querySelector("#patch-template"),
   form: document.querySelector("#patch-form"),
   message: document.querySelector("#form-message"),
-  token: document.querySelector("#token"),
+  adminPassword: document.querySelector("#admin-password"),
+  setupToken: document.querySelector("#setup-token"),
+  storeAdmin: document.querySelector("#store-admin"),
+  testMail: document.querySelector("#test-mail"),
   repoName: document.querySelector("#repo-name"),
   refresh: document.querySelector("#refresh"),
-  saveToken: document.querySelector("#save-token"),
   total: document.querySelector("#total-count"),
   mainline: document.querySelector("#mainline-count"),
   stable: document.querySelector("#stable-count"),
@@ -14,9 +16,12 @@ const els = {
 };
 
 const AVAILABLE_TARGETS = ["mainline", "linux-5.10.y", "linux-6.6.y"];
+const ADMIN_FILE = "docs/admin.json";
+const TOKEN_ITERATIONS = 160000;
 
 let patches = [];
 let status = { patches: [] };
+let unlockedToken = "";
 
 function repoInfo() {
   const host = window.location.hostname;
@@ -35,13 +40,17 @@ function rawConfigUrl() {
 }
 
 function apiBase() {
+  return contentApiUrl("patches.json");
+}
+
+function contentApiUrl(path) {
   const { owner, repo } = repoInfo();
   if (!owner || !repo) throw new Error("Cannot infer GitHub repository from this URL");
-  return `https://api.github.com/repos/${owner}/${repo}/contents/patches.json`;
+  return `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
 }
 
 function token() {
-  return els.token.value.trim() || localStorage.getItem("kernelbell-token") || "";
+  return unlockedToken;
 }
 
 function cacheKey() {
@@ -63,6 +72,46 @@ function cachePatches(nextPatches) {
 
 function setMessage(text) {
   els.message.textContent = text;
+}
+
+function bytesToBase64(bytes) {
+  return btoa(String.fromCharCode(...new Uint8Array(bytes)));
+}
+
+function base64ToBytes(value) {
+  return Uint8Array.from(atob(value), (char) => char.charCodeAt(0));
+}
+
+async function tokenKey(password, salt, iterations) {
+  const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt, iterations, hash: "SHA-256" },
+    material,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"],
+  );
+}
+
+async function encryptToken(value, password) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await tokenKey(password, salt, TOKEN_ITERATIONS);
+  const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(value));
+  return {
+    version: 1,
+    kdf: "PBKDF2-SHA256",
+    iterations: TOKEN_ITERATIONS,
+    salt: bytesToBase64(salt),
+    iv: bytesToBase64(iv),
+    ciphertext: bytesToBase64(ciphertext),
+  };
+}
+
+async function decryptToken(config, password) {
+  const key = await tokenKey(password, base64ToBytes(config.salt), config.iterations || TOKEN_ITERATIONS);
+  const plaintext = await crypto.subtle.decrypt({ name: "AES-GCM", iv: base64ToBytes(config.iv) }, key, base64ToBytes(config.ciphertext));
+  return new TextDecoder().decode(plaintext);
 }
 
 function patchKey(patch) {
@@ -102,12 +151,16 @@ async function loadJson(path, fallback) {
   return response.json();
 }
 
-function githubHeaders(requireToken = false) {
-  const currentToken = token();
-  if (requireToken && !currentToken) throw new Error("GitHub token is required for editing");
+function githubHeadersWith(currentToken) {
   const headers = { Accept: "application/vnd.github+json" };
   if (currentToken) headers.Authorization = `Bearer ${currentToken}`;
   return headers;
+}
+
+async function githubHeaders(requireToken = false) {
+  const currentToken = requireToken ? await adminToken() : token();
+  if (requireToken && !currentToken) throw new Error("Admin password is required for editing");
+  return githubHeadersWith(currentToken);
 }
 
 function decodeContent(content) {
@@ -115,9 +168,55 @@ function decodeContent(content) {
 }
 
 async function getRemoteFile(requireToken = false) {
-  const response = await fetch(apiBase(), { headers: githubHeaders(requireToken) });
+  const response = await fetch(apiBase(), { headers: await githubHeaders(requireToken) });
   if (!response.ok) throw new Error(`GitHub API read failed: ${response.status}`);
   return response.json();
+}
+
+async function readContent(path, authToken = "") {
+  const response = await fetch(`${contentApiUrl(path)}?t=${Date.now()}`, { headers: githubHeadersWith(authToken) });
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`GitHub API read failed: ${response.status}`);
+  return response.json();
+}
+
+async function writeContent(path, value, message, authToken) {
+  const current = await readContent(path, authToken);
+  const body = {
+    message,
+    content: btoa(unescape(encodeURIComponent(`${JSON.stringify(value, null, 2)}\n`))),
+  };
+  if (current?.sha) body.sha = current.sha;
+  const response = await fetch(contentApiUrl(path), {
+    method: "PUT",
+    headers: {
+      ...githubHeadersWith(authToken),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) throw new Error(`GitHub API write failed: ${response.status}`);
+  return response.json();
+}
+
+async function adminToken() {
+  if (unlockedToken) return unlockedToken;
+  const password = els.adminPassword.value.trim();
+  if (!password) throw new Error("Admin password is required.");
+  let config = null;
+  try {
+    const file = await readContent(ADMIN_FILE);
+    config = file ? JSON.parse(decodeContent(file.content)) : null;
+  } catch {
+    config = await loadJson("admin.json", null);
+  }
+  if (!config) throw new Error("Admin token is not set up yet.");
+  try {
+    unlockedToken = await decryptToken(config, password);
+    return unlockedToken;
+  } catch {
+    throw new Error("Admin password is incorrect.");
+  }
 }
 
 async function loadPatches() {
@@ -203,6 +302,7 @@ function render() {
 }
 
 async function savePatches(nextPatches, message) {
+  const authToken = await adminToken();
   const current = await getRemoteFile(true);
   const body = {
     message,
@@ -212,7 +312,7 @@ async function savePatches(nextPatches, message) {
   const response = await fetch(apiBase(), {
     method: "PUT",
     headers: {
-      ...githubHeaders(true),
+      ...githubHeadersWith(authToken),
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
@@ -234,7 +334,6 @@ async function addPatch(event) {
     setMessage("Select at least one target.");
     return;
   }
-  const currentToken = token();
   const next = [
     ...patches,
     {
@@ -251,8 +350,52 @@ async function addPatch(event) {
     els.form.reset();
     els.form.querySelector('[name="targets"][value="mainline"]').checked = true;
     els.form.querySelector('[name="targets"][value="linux-6.6.y"]').checked = true;
-    els.token.value = currentToken;
     setMessage("Patch saved. Run the workflow or wait for the next schedule.");
+  } catch (error) {
+    setMessage(error.message);
+  }
+}
+
+async function storeAdminToken() {
+  const setupToken = els.setupToken.value.trim();
+  const password = els.adminPassword.value.trim();
+  if (!setupToken || !password) {
+    setMessage("Setup token and admin password are required.");
+    return;
+  }
+  setMessage("Encrypting admin token...");
+  try {
+    const encrypted = await encryptToken(setupToken, password);
+    await writeContent(ADMIN_FILE, encrypted, "Store encrypted kernelbell admin token", setupToken);
+    unlockedToken = setupToken;
+    els.setupToken.value = "";
+    setMessage("Encrypted admin token stored. Future edits only need the password.");
+  } catch (error) {
+    setMessage(error.message);
+  }
+}
+
+async function testMail() {
+  const form = new FormData(els.form);
+  const testEmail = form.get("notify").trim();
+  if (!testEmail) {
+    setMessage("Enter an email address first.");
+    return;
+  }
+  const { owner, repo } = repoInfo();
+  setMessage("Triggering mail test workflow...");
+  try {
+    const authToken = await adminToken();
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/workflows/monitor.yml/dispatches`, {
+      method: "POST",
+      headers: {
+        ...githubHeadersWith(authToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ref: "main", inputs: { mode: "test-mail", test_email: testEmail } }),
+    });
+    if (!response.ok) throw new Error(`Workflow dispatch failed: ${response.status}`);
+    setMessage("Mail test workflow started. Check Actions for the result.");
   } catch (error) {
     setMessage(error.message);
   }
@@ -271,10 +414,10 @@ async function removePatch(patch) {
 
 els.form.addEventListener("submit", addPatch);
 els.refresh.addEventListener("click", loadData);
-els.saveToken.addEventListener("click", () => {
-  localStorage.setItem("kernelbell-token", els.token.value.trim());
-  setMessage("Token remembered in this browser.");
+els.storeAdmin.addEventListener("click", storeAdminToken);
+els.testMail.addEventListener("click", testMail);
+els.adminPassword.addEventListener("input", () => {
+  unlockedToken = "";
 });
 
-els.token.value = localStorage.getItem("kernelbell-token") || "";
 loadData().catch((error) => setMessage(error.message));

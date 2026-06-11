@@ -9,27 +9,37 @@
   <body>
     <main class="shell">
       <section class="masthead">
-        <div>
+        <div class="brand-row">
+          <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M24 5 39 13v12c0 9-6 15-15 18C15 40 9 34 9 25V13l15-8Z"></path>
+            <path d="M17 25h14M19 18h10M20 32h8"></path>
+          </svg>
+          <div>
           <p class="eyebrow">kernelbell</p>
           <h1>Linux patch merge monitor</h1>
+          </div>
         </div>
         <button id="refresh" class="secondary compact-button" title="Refresh status" aria-label="Refresh status">Refresh</button>
       </section>
 
       <section class="panel metrics" aria-label="Monitor summary">
         <div>
+          <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path><path d="M8 9h8M8 13h5"></path></svg>
           <span id="total-count">0</span>
           <label>Tracked</label>
         </div>
         <div>
+          <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16"></path><path d="M13 5l7 7-7 7"></path></svg>
           <span id="mainline-count">0</span>
           <label>Mainline</label>
         </div>
         <div>
+          <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v16"></path><path d="M6 8h7a4 4 0 0 1 0 8H6"></path></svg>
           <span id="stable-count">0</span>
           <label>Stable</label>
         </div>
         <div>
+          <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2"></path><path d="M21 12a9 9 0 1 1-9-9"></path></svg>
           <span id="generated-at">-</span>
           <label>Last Check</label>
         </div>
@@ -64,13 +74,22 @@
             </label>
           </div>
           <label>
-            <span>GitHub token</span>
-            <input id="token" name="token" type="password" autocomplete="off" placeholder="fine-grained token with contents write">
+            <span>Admin password</span>
+            <input id="admin-password" name="admin_password" type="password" autocomplete="off" placeholder="password for encrypted admin token">
           </label>
           <div class="actions">
             <button type="submit">Add</button>
-            <button id="save-token" type="button" class="secondary">Remember token</button>
+            <button id="test-mail" type="button" class="secondary">Test mail</button>
           </div>
+          <details class="setup-box">
+            <summary>Admin token setup</summary>
+            <label>
+              <span>One-time GitHub token</span>
+              <input id="setup-token" type="password" autocomplete="off" placeholder="contents write + actions write">
+            </label>
+            <button id="store-admin" type="button" class="secondary">Store encrypted token</button>
+            <p class="hint">The token is encrypted with the admin password before it is committed to `docs/admin.json`.</p>
+          </details>
           <p id="form-message" class="message" role="status"></p>
         </form>
 
