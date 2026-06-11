@@ -21,7 +21,7 @@ Edit `patches.json` directly, or use the Pages UI with a GitHub token that has `
   {
     "id": "fix-important-bug",
     "title": "subsystem: fix important bug",
-    "stable_branches": ["linux-6.6.y", "linux-6.1.y"],
+    "targets": ["mainline", "linux-5.10.y", "linux-6.6.y"],
     "notify": ["you@example.com"],
     "enabled": true
   }
@@ -30,7 +30,7 @@ Edit `patches.json` directly, or use the Pages UI with a GitHub token that has `
 
 The title is matched against the commit subject. Matching is case-insensitive, but the normalized subject must equal the normalized title.
 
-Each patch can set up to 3 stable branches in `stable_branches`. The legacy `stable_branch` string is still accepted for older entries.
+Each patch uses `targets` to decide what to check. The Pages UI offers `mainline`, `linux-5.10.y`, and `linux-6.6.y`. Legacy `stable_branch` and `stable_branches` entries are still accepted.
 
 ## GitHub setup
 
@@ -60,7 +60,7 @@ Optional repository variables:
 
 ## Frontend editing
 
-The Pages UI can add and delete patches by calling the GitHub Contents API. Create a fine-grained personal access token with access to this repository and `Contents: Read and write`, then paste it into the token field. The token is stored only in your browser when you choose `Remember token`.
+The Pages UI loads `patches.json` through the GitHub Contents API to avoid raw CDN delay after edits. It can add and delete patches with a fine-grained personal access token that has access to this repository and `Contents: Read and write`. The token is stored only in your browser when you choose `Remember token`.
 
 After editing the list, wait for the next scheduled workflow or trigger `kernelbell` manually.
 

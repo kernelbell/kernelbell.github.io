@@ -13,6 +13,8 @@ const els = {
   generated: document.querySelector("#generated-at"),
 };
 
+const AVAILABLE_TARGETS = ["mainline", "linux-5.10.y", "linux-6.6.y"];
+
 let patches = [];
 let status = { patches: [] };
 
@@ -42,6 +44,23 @@ function token() {
   return els.token.value.trim() || localStorage.getItem("kernelbell-token") || "";
 }
 
+function cacheKey() {
+  const { owner, repo } = repoInfo();
+  return `kernelbell-patches-${owner || "local"}-${repo || "preview"}`;
+}
+
+function readCachedPatches() {
+  try {
+    return JSON.parse(localStorage.getItem(cacheKey()) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function cachePatches(nextPatches) {
+  localStorage.setItem(cacheKey(), JSON.stringify(nextPatches));
+}
+
 function setMessage(text) {
   els.message.textContent = text;
 }
@@ -50,18 +69,31 @@ function patchKey(patch) {
   return patch.id || patch.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
 }
 
+function targetsFor(patch) {
+  if (Array.isArray(patch.targets)) return [...new Set(patch.targets.map(String).filter(Boolean))];
+  const targets = [];
+  if (patch.mainline !== false) targets.push("mainline");
+  stableBranches(patch).forEach((branch) => targets.push(branch));
+  return [...new Set(targets)];
+}
+
 function stableBranches(patch) {
+  if (Array.isArray(patch.targets)) return patch.targets.filter((target) => target !== "mainline").slice(0, 3);
   const raw = patch.stable_branches ?? patch.stable_branch ?? [];
   const values = Array.isArray(raw) ? raw : String(raw).split(",");
   return [...new Set(values.map((item) => String(item).trim()).filter(Boolean))].slice(0, 3);
 }
 
 function stableStatusBranches(patch, state) {
-  if (Array.isArray(state?.stable?.branches)) return state.stable.branches;
-  if (state?.stable) {
-    return [{ branch: stableBranches(patch)[0] || "stable", found: Boolean(state.stable.found), commit: state.stable.commit || null }];
+  const configured = stableBranches(patch);
+  if (Array.isArray(state?.stable?.branches)) {
+    const byBranch = new Map(state.stable.branches.map((branch) => [branch.branch, branch]));
+    return configured.map((branch) => byBranch.get(branch) || { branch, found: false, commit: null });
   }
-  return stableBranches(patch).map((branch) => ({ branch, found: false, commit: null }));
+  if (state?.stable) {
+    return [{ branch: configured[0] || "stable", found: Boolean(state.stable.found), commit: state.stable.commit || null }];
+  }
+  return configured.map((branch) => ({ branch, found: false, commit: null }));
 }
 
 async function loadJson(path, fallback) {
@@ -70,9 +102,46 @@ async function loadJson(path, fallback) {
   return response.json();
 }
 
+function githubHeaders(requireToken = false) {
+  const currentToken = token();
+  if (requireToken && !currentToken) throw new Error("GitHub token is required for editing");
+  const headers = { Accept: "application/vnd.github+json" };
+  if (currentToken) headers.Authorization = `Bearer ${currentToken}`;
+  return headers;
+}
+
+function decodeContent(content) {
+  return decodeURIComponent(escape(atob(content.replace(/\n/g, ""))));
+}
+
+async function getRemoteFile(requireToken = false) {
+  const response = await fetch(apiBase(), { headers: githubHeaders(requireToken) });
+  if (!response.ok) throw new Error(`GitHub API read failed: ${response.status}`);
+  return response.json();
+}
+
+async function loadPatches() {
+  try {
+    const file = await getRemoteFile(false);
+    return JSON.parse(decodeContent(file.content));
+  } catch {
+    return loadJson(rawConfigUrl(), []);
+  }
+}
+
 async function loadData() {
-  patches = await loadJson(rawConfigUrl(), []);
-  status = await loadJson("status.json", { patches: [] });
+  const cached = readCachedPatches();
+  if (cached.length) {
+    patches = cached;
+    render();
+  }
+  const [nextPatches, nextStatus] = await Promise.all([
+    loadPatches(),
+    loadJson("status.json", { patches: [] }),
+  ]);
+  patches = nextPatches;
+  status = nextStatus;
+  cachePatches(patches);
   render();
 }
 
@@ -115,13 +184,14 @@ function render() {
   rows.forEach(({ patch, state }) => {
     const node = els.template.content.cloneNode(true);
     const card = node.querySelector(".patch-card");
+    const targets = targetsFor(patch);
     const branches = stableBranches(patch);
     const stableRows = stableStatusBranches(patch, state);
     card.querySelector("h3").textContent = patch.title;
-    card.querySelector(".meta").textContent = `${branches.join(", ") || "no stable branches"} - ${patch.enabled === false ? "disabled" : "enabled"}`;
+    card.querySelector(".meta").textContent = `${targets.join(", ") || "no targets"} - ${patch.enabled === false ? "disabled" : "enabled"}`;
 
     const badges = card.querySelector(".badges");
-    badges.append(badge("mainline", Boolean(state?.mainline?.found), false));
+    if (targets.includes("mainline")) badges.append(badge("mainline", Boolean(state?.mainline?.found), false));
     stableRows.forEach((branch) => badges.append(badge(branch.branch, Boolean(branch.found), false)));
     if (patch.enabled === false) badges.append(badge("disabled", false, true));
 
@@ -132,21 +202,8 @@ function render() {
   });
 }
 
-async function getRemoteFile() {
-  const currentToken = token();
-  if (!currentToken) throw new Error("GitHub token is required for editing");
-  const response = await fetch(apiBase(), {
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${currentToken}`,
-    },
-  });
-  if (!response.ok) throw new Error(`GitHub API read failed: ${response.status}`);
-  return response.json();
-}
-
 async function savePatches(nextPatches, message) {
-  const current = await getRemoteFile();
+  const current = await getRemoteFile(true);
   const body = {
     message,
     content: btoa(unescape(encodeURIComponent(`${JSON.stringify(nextPatches, null, 2)}\n`))),
@@ -155,14 +212,14 @@ async function savePatches(nextPatches, message) {
   const response = await fetch(apiBase(), {
     method: "PUT",
     headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${token()}`,
+      ...githubHeaders(true),
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
   });
   if (!response.ok) throw new Error(`GitHub API write failed: ${response.status}`);
   patches = nextPatches;
+  cachePatches(patches);
   render();
 }
 
@@ -170,19 +227,20 @@ async function addPatch(event) {
   event.preventDefault();
   const form = new FormData(els.form);
   const title = form.get("title").trim();
-  const branches = String(form.get("stable_branches") || "").split(",").map((item) => item.trim()).filter(Boolean);
+  const selectedTargets = form.getAll("targets").filter((target) => AVAILABLE_TARGETS.includes(target));
   const notify = form.get("notify").trim();
   if (!title) return;
-  if (branches.length > 3) {
-    setMessage("Stable branches cannot exceed 3.");
+  if (!selectedTargets.length) {
+    setMessage("Select at least one target.");
     return;
   }
+  const currentToken = token();
   const next = [
     ...patches,
     {
       id: patchKey({ title }),
       title,
-      stable_branches: [...new Set(branches)],
+      targets: selectedTargets,
       notify: notify ? [notify] : [],
       enabled: true,
     },
@@ -191,7 +249,9 @@ async function addPatch(event) {
   try {
     await savePatches(next, `Track patch: ${title}`);
     els.form.reset();
-    els.token.value = token();
+    els.form.querySelector('[name="targets"][value="mainline"]').checked = true;
+    els.form.querySelector('[name="targets"][value="linux-6.6.y"]').checked = true;
+    els.token.value = currentToken;
     setMessage("Patch saved. Run the workflow or wait for the next schedule.");
   } catch (error) {
     setMessage(error.message);

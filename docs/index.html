@@ -42,11 +42,22 @@
             <span>Patch title</span>
             <input id="title" name="title" required placeholder="subsystem: fix something important">
           </label>
-          <div class="grid-2">
-            <label>
-              <span>Stable branches</span>
-              <input id="stable_branches" name="stable_branches" placeholder="linux-6.6.y, linux-6.1.y">
+          <fieldset class="target-group">
+            <legend>Targets</legend>
+            <label class="check-row">
+              <input type="checkbox" name="targets" value="mainline" checked>
+              <span>mainline</span>
             </label>
+            <label class="check-row">
+              <input type="checkbox" name="targets" value="linux-5.10.y">
+              <span>linux-5.10.y</span>
+            </label>
+            <label class="check-row">
+              <input type="checkbox" name="targets" value="linux-6.6.y" checked>
+              <span>linux-6.6.y</span>
+            </label>
+          </fieldset>
+          <div class="grid-2">
             <label>
               <span>Email</span>
               <input id="notify" name="notify" type="email" placeholder="you@example.com">

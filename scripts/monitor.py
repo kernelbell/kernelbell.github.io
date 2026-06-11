@@ -20,6 +20,7 @@ MAINLINE_GITHUB_REPO = os.environ.get("KERNELBELL_MAINLINE_GITHUB_REPO") or "tor
 STABLE_GITHUB_REPO = os.environ.get("KERNELBELL_STABLE_GITHUB_REPO") or "gregkh/linux"
 LOOKBACK_COMMITS = int(os.environ.get("KERNELBELL_LOOKBACK_COMMITS") or "1000")
 GITHUB_TOKEN = os.environ.get("KERNELBELL_GITHUB_TOKEN") or os.environ.get("GITHUB_TOKEN")
+MAINLINE_TARGET = "mainline"
 
 
 def now_iso():
@@ -51,7 +52,28 @@ def patch_id(patch):
     return "".join(ch if ch.isalnum() else "-" for ch in normalized).strip("-")[:80]
 
 
+def targets_for(patch):
+    raw = patch.get("targets")
+    if raw is None:
+        targets = []
+        if patch.get("mainline", True):
+            targets.append(MAINLINE_TARGET)
+        targets.extend(stable_branches_for(patch)[0])
+        return list(dict.fromkeys(targets))
+    if isinstance(raw, str):
+        raw = [item.strip() for item in raw.split(",")]
+    targets = []
+    for target in raw or []:
+        target = str(target).strip()
+        if target and target not in targets:
+            targets.append(target)
+    return targets
+
+
 def stable_branches_for(patch):
+    if patch.get("targets") is not None:
+        branches = [target for target in targets_for({"targets": patch.get("targets")}) if target != MAINLINE_TARGET]
+        return branches[:3], len(branches) > 3
     raw = patch.get("stable_branches")
     if raw is None:
         raw = patch.get("stable_branch", [])
@@ -168,13 +190,13 @@ def notify_if_new(patch, target, commit, state):
         return False
 
     title = patch["title"]
-    stable_branches, _ = stable_branches_for(patch)
+    targets = targets_for(patch)
     subject = f"[kernelbell] Patch merged in {target}: {title}"
     body = "\n".join(
         [
             f"Patch title: {title}",
             f"Target: {target}",
-            f"Stable branches: {', '.join(stable_branches) or 'n/a'}",
+            f"Tracked targets: {', '.join(targets) or 'n/a'}",
             f"Commit: {commit['hash']}",
             f"Subject: {commit['subject']}",
             f"Author: {commit['author']}",
@@ -199,14 +221,17 @@ def check_patches():
         pid = patch_id(patch)
         enabled = patch.get("enabled", True)
         title = patch.get("title", "").strip()
+        targets = targets_for(patch)
+        mainline_enabled = MAINLINE_TARGET in targets
         stable_branches, too_many_stable_branches = stable_branches_for(patch)
         result = {
             "id": pid,
             "title": title,
+            "targets": targets,
             "stable_branches": stable_branches,
             "enabled": enabled,
             "last_checked_at": now_iso(),
-            "mainline": {"found": False, "commit": None},
+            "mainline": {"enabled": mainline_enabled, "found": False, "commit": None},
             "stable": {"found": False, "branches": []},
             "errors": [],
         }
@@ -221,13 +246,14 @@ def check_patches():
             results.append(result)
             continue
 
-        try:
-            mainline_commit = find_commit_by_title(MAINLINE_GITHUB_REPO, "master", title)
-            if mainline_commit:
-                result["mainline"] = {"found": True, "commit": mainline_commit}
-                notify_if_new(patch, "mainline", mainline_commit, state)
-        except Exception as exc:
-            result["errors"].append(f"mainline check failed: {exc}")
+        if mainline_enabled:
+            try:
+                mainline_commit = find_commit_by_title(MAINLINE_GITHUB_REPO, "master", title)
+                if mainline_commit:
+                    result["mainline"] = {"enabled": True, "found": True, "commit": mainline_commit}
+                    notify_if_new(patch, "mainline", mainline_commit, state)
+            except Exception as exc:
+                result["errors"].append(f"mainline check failed: {exc}")
 
         for stable_branch in stable_branches:
             branch_result = {"branch": stable_branch, "found": False, "commit": None}

@@ -150,6 +150,41 @@ input:focus {
   border-color: var(--accent);
 }
 
+.target-group {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 11px;
+  background: #fbfcfb;
+}
+
+.target-group legend {
+  padding: 0 4px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.check-row input {
+  width: auto;
+  margin: 0;
+}
+
+.check-row span {
+  color: var(--ink);
+  font-size: 0.9rem;
+  text-transform: none;
+}
+
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
