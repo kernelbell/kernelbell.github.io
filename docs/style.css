@@ -183,12 +183,6 @@ input:focus {
   border-color: var(--accent);
 }
 
-.input-action {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-}
-
 .target-group {
   display: grid;
   gap: 8px;
@@ -228,6 +222,19 @@ input:focus {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+
+.wide-field {
+  grid-column: 1 / -1;
+}
+
+.small-check {
+  margin-top: 2px;
+}
+
+.small-check span {
+  color: var(--muted);
+  font-size: 0.84rem;
 }
 
 .actions,

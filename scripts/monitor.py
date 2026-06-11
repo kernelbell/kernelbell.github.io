@@ -160,7 +160,7 @@ def send_email(recipients, subject, body):
         return False
 
     host = os.environ["SMTP_HOST"]
-    port = int(os.environ.get("SMTP_PORT", "587"))
+    port = int(os.environ.get("SMTP_PORT") or "587")
     username = os.environ.get("SMTP_USER")
     password = os.environ.get("SMTP_PASS")
     sender = os.environ.get("SMTP_FROM") or username or "kernelbell@localhost"

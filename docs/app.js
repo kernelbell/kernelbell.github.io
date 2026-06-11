@@ -81,14 +81,24 @@ function rememberedEmail() {
   return localStorage.getItem(emailKey()) || "";
 }
 
+function rememberEmailEnabledKey() {
+  const { owner, repo } = repoInfo();
+  return `kernelbell-email-enabled-${owner || "local"}-${repo || "preview"}`;
+}
+
+function shouldRememberEmail() {
+  return els.rememberEmail.checked;
+}
+
 function rememberEmail() {
   const email = els.notify.value.trim();
-  if (!email) {
-    setMessage("Enter an email address first.");
-    return;
+  localStorage.setItem(rememberEmailEnabledKey(), els.rememberEmail.checked ? "1" : "0");
+  if (els.rememberEmail.checked && email) {
+    localStorage.setItem(emailKey(), email);
+    setMessage("Email remembered in this browser.");
+  } else if (!els.rememberEmail.checked) {
+    setMessage("Email remember disabled.");
   }
-  localStorage.setItem(emailKey(), email);
-  setMessage("Email remembered in this browser.");
 }
 
 function setMessage(text) {
@@ -367,7 +377,7 @@ async function addPatch(event) {
   ];
   setMessage("Saving patch...");
   try {
-    if (notify) localStorage.setItem(emailKey(), notify);
+    if (notify && shouldRememberEmail()) localStorage.setItem(emailKey(), notify);
     await savePatches(next, `Track patch: ${title}`);
     els.form.reset();
     els.notify.value = rememberedEmail();
@@ -406,7 +416,7 @@ async function testMail() {
     return;
   }
   const { owner, repo } = repoInfo();
-  localStorage.setItem(emailKey(), testEmail);
+  if (shouldRememberEmail()) localStorage.setItem(emailKey(), testEmail);
   setMessage("Triggering mail test workflow...");
   try {
     const authToken = await adminToken();
@@ -440,10 +450,11 @@ els.form.addEventListener("submit", addPatch);
 els.refresh.addEventListener("click", loadData);
 els.storeAdmin.addEventListener("click", storeAdminToken);
 els.testMail.addEventListener("click", testMail);
-els.rememberEmail.addEventListener("click", rememberEmail);
+els.rememberEmail.addEventListener("change", rememberEmail);
 els.adminPassword.addEventListener("input", () => {
   unlockedToken = "";
 });
 
+els.rememberEmail.checked = localStorage.getItem(rememberEmailEnabledKey()) === "1";
 els.notify.value = rememberedEmail();
 loadData().catch((error) => setMessage(error.message));
