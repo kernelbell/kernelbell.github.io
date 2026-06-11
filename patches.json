@@ -1,13 +1,1 @@
-[
-  {
-    "id": "example-fix-title",
-    "title": "example: fix title to track",
-    "stable_branches": [
-      "linux-6.6.y"
-    ],
-    "notify": [
-      "maintainer@example.com"
-    ],
-    "enabled": false
-  }
-]
+[]
