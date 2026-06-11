@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "id": "fix-double-dst-release-on-sk-dst-cache-race",
+    "title": "fix double dst_release() on sk_dst_cache race",
+    "stable_branches": [
+      "linux-6.6.y"
+    ],
+    "notify": [
+      "lixiasong1@huawei.com"
+    ],
+    "enabled": true
+  }
+]
