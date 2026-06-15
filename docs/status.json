@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-14T19:56:35+00:00",
+  "generated_at": "2026-06-15T05:27:14+00:00",
   "patches": [
     {
       "id": "fix-double-dst-release-on-sk-dst-cache-race",
@@ -12,7 +12,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-14T19:56:11+00:00",
+      "last_checked_at": "2026-06-15T05:26:27+00:00",
       "mainline": {
         "enabled": true,
         "found": false,
@@ -42,7 +42,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-14T19:56:24+00:00",
+      "last_checked_at": "2026-06-15T05:26:41+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -73,7 +73,7 @@
       ],
       "stable_branches": [],
       "enabled": true,
-      "last_checked_at": "2026-06-14T19:56:35+00:00",
+      "last_checked_at": "2026-06-15T05:26:55+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -90,6 +90,42 @@
       "stable": {
         "found": false,
         "branches": []
+      },
+      "errors": []
+    },
+    {
+      "id": "restrict-socket-queue-dumps-in-enqueue-tracepoints",
+      "title": "restrict socket queue dumps in enqueue tracepoints",
+      "targets": [
+        "mainline",
+        "linux-5.10.y",
+        "linux-6.6.y"
+      ],
+      "stable_branches": [
+        "linux-5.10.y",
+        "linux-6.6.y"
+      ],
+      "enabled": true,
+      "last_checked_at": "2026-06-15T05:26:55+00:00",
+      "mainline": {
+        "enabled": true,
+        "found": false,
+        "commit": null
+      },
+      "stable": {
+        "found": false,
+        "branches": [
+          {
+            "branch": "linux-5.10.y",
+            "found": false,
+            "commit": null
+          },
+          {
+            "branch": "linux-6.6.y",
+            "found": false,
+            "commit": null
+          }
+        ]
       },
       "errors": []
     }
