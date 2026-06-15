@@ -33,5 +33,18 @@
       "lixiasong1@huawei.com"
     ],
     "enabled": true
+  },
+  {
+    "id": "restrict-socket-queue-dumps-in-enqueue-tracepoints",
+    "title": "restrict socket queue dumps in enqueue tracepoints",
+    "targets": [
+      "mainline",
+      "linux-5.10.y",
+      "linux-6.6.y"
+    ],
+    "notify": [
+      "lixiasong1@huawei.com"
+    ],
+    "enabled": true
   }
 ]
