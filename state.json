@@ -3,6 +3,10 @@
     "reject-unknown-flags-in-pr-set-cfi": {
       "mainline": "15b4155138505669d3d43d7692459ee8ea2a86e7",
       "mainline_notified_at": "2026-06-11T02:12:52+00:00"
+    },
+    "restrict-socket-queue-dumps-in-enqueue-tracepoints": {
+      "mainline": "acd7df8d955480a6f6e5bb809da67b1500cc3cf4",
+      "mainline_notified_at": "2026-06-17T11:17:17+00:00"
     }
   }
 }
