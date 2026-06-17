@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-17T11:17:31+00:00",
+  "generated_at": "2026-06-17T16:01:57+00:00",
   "patches": [
     {
       "id": "fix-double-dst-release-on-sk-dst-cache-race",
@@ -12,7 +12,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-17T11:16:41+00:00",
+      "last_checked_at": "2026-06-17T16:01:25+00:00",
       "mainline": {
         "enabled": true,
         "found": false,
@@ -42,7 +42,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-17T11:16:58+00:00",
+      "last_checked_at": "2026-06-17T16:01:36+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -73,7 +73,7 @@
       ],
       "stable_branches": [],
       "enabled": true,
-      "last_checked_at": "2026-06-17T11:17:14+00:00",
+      "last_checked_at": "2026-06-17T16:01:47+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -106,7 +106,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-17T11:17:15+00:00",
+      "last_checked_at": "2026-06-17T16:01:47+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
