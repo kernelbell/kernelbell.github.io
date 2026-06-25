@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-24T20:04:57+00:00",
+  "generated_at": "2026-06-25T04:22:57+00:00",
   "patches": [
     {
       "id": "fix-double-dst-release-on-sk-dst-cache-race",
@@ -12,7 +12,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-24T20:04:31+00:00",
+      "last_checked_at": "2026-06-25T04:22:03+00:00",
       "mainline": {
         "enabled": true,
         "found": false,
@@ -42,7 +42,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-24T20:04:42+00:00",
+      "last_checked_at": "2026-06-25T04:22:17+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -73,7 +73,7 @@
       ],
       "stable_branches": [],
       "enabled": true,
-      "last_checked_at": "2026-06-24T20:04:51+00:00",
+      "last_checked_at": "2026-06-25T04:22:30+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -106,7 +106,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-24T20:04:51+00:00",
+      "last_checked_at": "2026-06-25T04:22:31+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -118,6 +118,50 @@
           "ref": "master",
           "url": "https://github.com/torvalds/linux/commit/acd7df8d955480a6f6e5bb809da67b1500cc3cf4",
           "match_type": "search-suffix-after-prefix"
+        }
+      },
+      "stable": {
+        "found": false,
+        "branches": [
+          {
+            "branch": "linux-5.10.y",
+            "found": false,
+            "commit": null
+          },
+          {
+            "branch": "linux-6.6.y",
+            "found": false,
+            "commit": null
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "use-nla-policy-for-parsing",
+      "title": "use NLA_POLICY for parsing",
+      "targets": [
+        "mainline",
+        "linux-5.10.y",
+        "linux-6.6.y"
+      ],
+      "stable_branches": [
+        "linux-5.10.y",
+        "linux-6.6.y"
+      ],
+      "enabled": true,
+      "last_checked_at": "2026-06-25T04:22:43+00:00",
+      "mainline": {
+        "enabled": true,
+        "found": true,
+        "commit": {
+          "hash": "5036034572b79daa6d6600338e8e8229e2a44b09",
+          "subject": "net/sched: act_pedit: use NLA_POLICY for parsing 'ex' keys",
+          "committed_at": "2023-04-21T18:25:13.000-03:00",
+          "author": "Pedro Tammela",
+          "ref": "master",
+          "url": "https://github.com/torvalds/linux/commit/5036034572b79daa6d6600338e8e8229e2a44b09",
+          "match_type": "search-message-contains"
         }
       },
       "stable": {

@@ -7,6 +7,10 @@
     "restrict-socket-queue-dumps-in-enqueue-tracepoints": {
       "mainline": "acd7df8d955480a6f6e5bb809da67b1500cc3cf4",
       "mainline_notified_at": "2026-06-17T11:17:17+00:00"
+    },
+    "use-nla-policy-for-parsing": {
+      "mainline": "5036034572b79daa6d6600338e8e8229e2a44b09",
+      "mainline_notified_at": "2026-06-25T04:22:45+00:00"
     }
   }
 }
