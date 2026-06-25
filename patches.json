@@ -46,18 +46,5 @@
       "lixiasong1@huawei.com"
     ],
     "enabled": true
-  },
-  {
-    "id": "use-nla-policy-for-parsing",
-    "title": "use NLA_POLICY for parsing",
-    "targets": [
-      "mainline",
-      "linux-5.10.y",
-      "linux-6.6.y"
-    ],
-    "notify": [
-      "lixiasong1@huawei.com"
-    ],
-    "enabled": true
   }
 ]
