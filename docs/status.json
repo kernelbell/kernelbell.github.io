@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-29T16:09:31+00:00",
+  "generated_at": "2026-06-29T20:15:35+00:00",
   "patches": [
     {
       "id": "fix-double-dst-release-on-sk-dst-cache-race",
@@ -12,7 +12,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-29T16:08:19+00:00",
+      "last_checked_at": "2026-06-29T20:14:22+00:00",
       "mainline": {
         "enabled": true,
         "found": false,
@@ -42,7 +42,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-29T16:08:37+00:00",
+      "last_checked_at": "2026-06-29T20:14:41+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -73,7 +73,7 @@
       ],
       "stable_branches": [],
       "enabled": true,
-      "last_checked_at": "2026-06-29T16:08:54+00:00",
+      "last_checked_at": "2026-06-29T20:14:57+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -106,7 +106,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-29T16:08:55+00:00",
+      "last_checked_at": "2026-06-29T20:14:58+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -149,7 +149,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-29T16:09:10+00:00",
+      "last_checked_at": "2026-06-29T20:15:13+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -182,7 +182,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-29T16:09:24+00:00",
+      "last_checked_at": "2026-06-29T20:15:28+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
