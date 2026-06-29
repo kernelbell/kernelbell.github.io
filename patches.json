@@ -58,5 +58,16 @@
       "lixiasong1@huawei.com"
     ],
     "enabled": true
+  },
+  {
+    "id": "support-for-adding-new-devices-to-an-existing-netdev-chain",
+    "title": "support for adding new devices to an existing netdev chain",
+    "targets": [
+      "linux-5.10.y"
+    ],
+    "notify": [
+      "lixiasong1@huawei.com"
+    ],
+    "enabled": true
   }
 ]
