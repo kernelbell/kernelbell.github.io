@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-28T19:44:53+00:00",
+  "generated_at": "2026-06-29T04:58:11+00:00",
   "patches": [
     {
       "id": "fix-double-dst-release-on-sk-dst-cache-race",
@@ -12,7 +12,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-28T19:43:56+00:00",
+      "last_checked_at": "2026-06-29T04:57:28+00:00",
       "mainline": {
         "enabled": true,
         "found": false,
@@ -42,7 +42,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-28T19:44:12+00:00",
+      "last_checked_at": "2026-06-29T04:57:39+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -73,7 +73,7 @@
       ],
       "stable_branches": [],
       "enabled": true,
-      "last_checked_at": "2026-06-28T19:44:26+00:00",
+      "last_checked_at": "2026-06-29T04:57:49+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -106,7 +106,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-28T19:44:27+00:00",
+      "last_checked_at": "2026-06-29T04:57:50+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -149,7 +149,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-06-28T19:44:40+00:00",
+      "last_checked_at": "2026-06-29T04:57:58+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -165,6 +165,34 @@
           },
           {
             "branch": "linux-6.6.y",
+            "found": false,
+            "commit": null
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "support-for-adding-new-devices-to-an-existing-netdev-chain",
+      "title": "support for adding new devices to an existing netdev chain",
+      "targets": [
+        "linux-5.10.y"
+      ],
+      "stable_branches": [
+        "linux-5.10.y"
+      ],
+      "enabled": true,
+      "last_checked_at": "2026-06-29T04:58:06+00:00",
+      "mainline": {
+        "enabled": false,
+        "found": false,
+        "commit": null
+      },
+      "stable": {
+        "found": false,
+        "branches": [
+          {
+            "branch": "linux-5.10.y",
             "found": false,
             "commit": null
           }
