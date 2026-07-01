@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-01T15:11:24+00:00",
+  "generated_at": "2026-07-01T20:11:44+00:00",
   "patches": [
     {
       "id": "fix-double-dst-release-on-sk-dst-cache-race",
@@ -12,7 +12,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-07-01T15:10:51+00:00",
+      "last_checked_at": "2026-07-01T20:11:00+00:00",
       "mainline": {
         "enabled": true,
         "found": false,
@@ -42,7 +42,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-07-01T15:11:00+00:00",
+      "last_checked_at": "2026-07-01T20:11:11+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -73,19 +73,11 @@
       ],
       "stable_branches": [],
       "enabled": true,
-      "last_checked_at": "2026-07-01T15:11:08+00:00",
+      "last_checked_at": "2026-07-01T20:11:20+00:00",
       "mainline": {
         "enabled": true,
-        "found": true,
-        "commit": {
-          "hash": "15b4155138505669d3d43d7692459ee8ea2a86e7",
-          "subject": "riscv: cfi: reject unknown flags in PR_SET_CFI",
-          "committed_at": "2026-05-18T18:39:18.000Z",
-          "author": "Richard Patel",
-          "ref": "master",
-          "url": "https://github.com/torvalds/linux/commit/15b4155138505669d3d43d7692459ee8ea2a86e7",
-          "match_type": "search-suffix-after-prefix"
-        }
+        "found": false,
+        "commit": null
       },
       "stable": {
         "found": false,
@@ -106,19 +98,11 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-07-01T15:11:09+00:00",
+      "last_checked_at": "2026-07-01T20:11:25+00:00",
       "mainline": {
         "enabled": true,
-        "found": true,
-        "commit": {
-          "hash": "acd7df8d955480a6f6e5bb809da67b1500cc3cf4",
-          "subject": "tipc: restrict socket queue dumps in enqueue tracepoints",
-          "committed_at": "2026-06-11T21:56:47.000+08:00",
-          "author": "Li Xiasong",
-          "ref": "master",
-          "url": "https://github.com/torvalds/linux/commit/acd7df8d955480a6f6e5bb809da67b1500cc3cf4",
-          "match_type": "search-suffix-after-prefix"
-        }
+        "found": false,
+        "commit": null
       },
       "stable": {
         "found": false,
@@ -135,7 +119,9 @@
           }
         ]
       },
-      "errors": []
+      "errors": [
+        "mainline check failed: GitHub API failed for https://api.github.com/search/commits?q=repo%3Atorvalds%2Flinux+restrict+socket+queue+dumps+in+enqueue+tracepoints&per_page=20: HTTP 403 {\n  \"documentation_url\": \"https://docs.github.com/free-pro-team@latest/rest/overview/rate-limits-for-the-rest-api#about-secondary-rate-limits\",\n  \"message\": \"You have exceeded a secondary rate limit. Please wait a few minutes before you try again. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service) If you reach out to GitHub Support for help, please include the request ID 900E:1E8E17:C2E1DD:2BB178B:6A45746D.\"\n}"
+      ]
     },
     {
       "id": "use-nla-policy-for-parsing",
@@ -149,7 +135,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-07-01T15:11:15+00:00",
+      "last_checked_at": "2026-07-01T20:11:31+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -182,7 +168,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-07-01T15:11:21+00:00",
+      "last_checked_at": "2026-07-01T20:11:39+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
