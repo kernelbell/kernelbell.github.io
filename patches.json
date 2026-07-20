@@ -69,5 +69,16 @@
       "lixiasong1@huawei.com"
     ],
     "enabled": true
+  },
+  {
+    "id": "track-register-operations",
+    "title": "track register operations",
+    "targets": [
+      "linux-5.10.y"
+    ],
+    "notify": [
+      "lixiasong1@huawei.com"
+    ],
+    "enabled": true
   }
 ]
