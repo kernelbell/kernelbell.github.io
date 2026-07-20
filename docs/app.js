@@ -198,16 +198,31 @@ function decodeContent(content) {
   return decodeURIComponent(escape(atob(content.replace(/\n/g, ""))));
 }
 
+async function githubError(prefix, response) {
+  let detail = "";
+  try {
+    const text = await response.text();
+    if (text) {
+      try {
+        detail = JSON.parse(text).message || text;
+      } catch {
+        detail = text;
+      }
+    }
+  } catch {}
+  return new Error(detail ? `${prefix}: ${response.status} ${detail}` : `${prefix}: ${response.status}`);
+}
+
 async function getRemoteFile(requireToken = false) {
   const response = await fetch(apiBase(), { headers: await githubHeaders(requireToken) });
-  if (!response.ok) throw new Error(`GitHub API read failed: ${response.status}`);
+  if (!response.ok) throw await githubError("GitHub API read failed", response);
   return response.json();
 }
 
 async function readContent(path, authToken = "") {
   const response = await fetch(`${contentApiUrl(path)}?t=${Date.now()}`, { headers: githubHeadersWith(authToken) });
   if (response.status === 404) return null;
-  if (!response.ok) throw new Error(`GitHub API read failed: ${response.status}`);
+  if (!response.ok) throw await githubError("GitHub API read failed", response);
   return response.json();
 }
 
@@ -226,7 +241,7 @@ async function writeContent(path, value, message, authToken) {
     },
     body: JSON.stringify(body),
   });
-  if (!response.ok) throw new Error(`GitHub API write failed: ${response.status}`);
+  if (!response.ok) throw await githubError("GitHub API write failed", response);
   return response.json();
 }
 
@@ -348,7 +363,7 @@ async function savePatches(nextPatches, message) {
     },
     body: JSON.stringify(body),
   });
-  if (!response.ok) throw new Error(`GitHub API write failed: ${response.status}`);
+  if (!response.ok) throw await githubError("GitHub API write failed", response);
   patches = nextPatches;
   cachePatches(patches);
   render();
@@ -428,7 +443,7 @@ async function testMail() {
       },
       body: JSON.stringify({ ref: "main", inputs: { mode: "test-mail", test_email: testEmail } }),
     });
-    if (!response.ok) throw new Error(`Workflow dispatch failed: ${response.status}`);
+    if (!response.ok) throw await githubError("Workflow dispatch failed", response);
     setMessage("Mail test workflow started. Check Actions for the result.");
   } catch (error) {
     setMessage(error.message);
