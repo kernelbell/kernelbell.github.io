@@ -80,5 +80,16 @@
       "lixiasong1@huawei.com"
     ],
     "enabled": true
+  },
+  {
+    "id": "avoid-retpoline-overhead-for-some-ct-expression-calls",
+    "title": "avoid retpoline overhead for some ct expression calls",
+    "targets": [
+      "linux-5.10.y"
+    ],
+    "notify": [
+      "lixiasong1@huawei.com"
+    ],
+    "enabled": true
   }
 ]
