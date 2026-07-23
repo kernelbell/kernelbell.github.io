@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-22T19:41:31+00:00",
+  "generated_at": "2026-07-23T03:42:14+00:00",
   "patches": [
     {
       "id": "fix-double-dst-release-on-sk-dst-cache-race",
@@ -12,7 +12,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-07-22T19:40:53+00:00",
+      "last_checked_at": "2026-07-23T03:41:19+00:00",
       "mainline": {
         "enabled": true,
         "found": false,
@@ -42,7 +42,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-07-22T19:41:06+00:00",
+      "last_checked_at": "2026-07-23T03:41:33+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -73,7 +73,7 @@
       ],
       "stable_branches": [],
       "enabled": true,
-      "last_checked_at": "2026-07-22T19:41:15+00:00",
+      "last_checked_at": "2026-07-23T03:41:45+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -106,7 +106,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-07-22T19:41:15+00:00",
+      "last_checked_at": "2026-07-23T03:41:45+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -149,7 +149,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-07-22T19:41:21+00:00",
+      "last_checked_at": "2026-07-23T03:41:53+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -182,7 +182,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-07-22T19:41:26+00:00",
+      "last_checked_at": "2026-07-23T03:42:01+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -210,7 +210,35 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-07-22T19:41:28+00:00",
+      "last_checked_at": "2026-07-23T03:42:05+00:00",
+      "mainline": {
+        "enabled": false,
+        "found": false,
+        "commit": null
+      },
+      "stable": {
+        "found": false,
+        "branches": [
+          {
+            "branch": "linux-5.10.y",
+            "found": false,
+            "commit": null
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "avoid-retpoline-overhead-for-some-ct-expression-calls",
+      "title": "avoid retpoline overhead for some ct expression calls",
+      "targets": [
+        "linux-5.10.y"
+      ],
+      "stable_branches": [
+        "linux-5.10.y"
+      ],
+      "enabled": true,
+      "last_checked_at": "2026-07-23T03:42:10+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
