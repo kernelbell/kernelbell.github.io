@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-16T18:45:11+00:00",
+  "generated_at": "2026-08-17T01:53:30+00:00",
   "patches": [
     {
       "id": "fix-double-dst-release-on-sk-dst-cache-race",
@@ -12,7 +12,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-16T18:44:37+00:00",
+      "last_checked_at": "2026-08-17T01:52:51+00:00",
       "mainline": {
         "enabled": true,
         "found": false,
@@ -42,7 +42,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-16T18:44:46+00:00",
+      "last_checked_at": "2026-08-17T01:53:01+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -63,7 +63,9 @@
           }
         ]
       },
-      "errors": []
+      "errors": [
+        "stable linux-5.10.y check failed: Remote end closed connection without response"
+      ]
     },
     {
       "id": "reject-unknown-flags-in-pr-set-cfi",
@@ -73,7 +75,7 @@
       ],
       "stable_branches": [],
       "enabled": true,
-      "last_checked_at": "2026-08-16T18:44:53+00:00",
+      "last_checked_at": "2026-08-17T01:53:11+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -106,7 +108,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-16T18:44:54+00:00",
+      "last_checked_at": "2026-08-17T01:53:11+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -157,7 +159,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-16T18:44:57+00:00",
+      "last_checked_at": "2026-08-17T01:53:17+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -190,7 +192,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-16T18:45:03+00:00",
+      "last_checked_at": "2026-08-17T01:53:22+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -218,7 +220,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-16T18:45:05+00:00",
+      "last_checked_at": "2026-08-17T01:53:25+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -246,7 +248,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-16T18:45:08+00:00",
+      "last_checked_at": "2026-08-17T01:53:27+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
