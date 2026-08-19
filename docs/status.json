@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-19T01:51:28+00:00",
+  "generated_at": "2026-08-19T07:03:23+00:00",
   "patches": [
     {
       "id": "fix-double-dst-release-on-sk-dst-cache-race",
@@ -12,7 +12,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-19T01:50:39+00:00",
+      "last_checked_at": "2026-08-19T07:02:46+00:00",
       "mainline": {
         "enabled": true,
         "found": false,
@@ -42,7 +42,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-19T01:50:51+00:00",
+      "last_checked_at": "2026-08-19T07:02:56+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -73,7 +73,7 @@
       ],
       "stable_branches": [],
       "enabled": true,
-      "last_checked_at": "2026-08-19T01:51:02+00:00",
+      "last_checked_at": "2026-08-19T07:03:04+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -106,7 +106,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-19T01:51:02+00:00",
+      "last_checked_at": "2026-08-19T07:03:05+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -157,7 +157,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-19T01:51:08+00:00",
+      "last_checked_at": "2026-08-19T07:03:09+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -190,7 +190,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-19T01:51:16+00:00",
+      "last_checked_at": "2026-08-19T07:03:15+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -218,7 +218,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-19T01:51:20+00:00",
+      "last_checked_at": "2026-08-19T07:03:18+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -246,7 +246,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-19T01:51:24+00:00",
+      "last_checked_at": "2026-08-19T07:03:20+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
