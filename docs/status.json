@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-23T06:59:35+00:00",
+  "generated_at": "2026-08-23T13:00:00+00:00",
   "patches": [
     {
       "id": "fix-double-dst-release-on-sk-dst-cache-race",
@@ -12,7 +12,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-23T06:58:16+00:00",
+      "last_checked_at": "2026-08-23T12:59:27+00:00",
       "mainline": {
         "enabled": true,
         "found": false,
@@ -42,7 +42,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-23T06:58:33+00:00",
+      "last_checked_at": "2026-08-23T12:59:36+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -73,7 +73,7 @@
       ],
       "stable_branches": [],
       "enabled": true,
-      "last_checked_at": "2026-08-23T06:58:49+00:00",
+      "last_checked_at": "2026-08-23T12:59:43+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -106,7 +106,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-23T06:58:50+00:00",
+      "last_checked_at": "2026-08-23T12:59:44+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -125,8 +125,16 @@
         "branches": [
           {
             "branch": "linux-5.10.y",
-            "found": false,
-            "commit": null
+            "found": true,
+            "commit": {
+              "hash": "ae5d0d9ce767b20a5580bb6dc5e06f3e1b8a0fb0",
+              "subject": "tipc: restrict socket queue dumps in enqueue tracepoints",
+              "committed_at": "2026-07-22T18:20:07Z",
+              "author": "Li Xiasong",
+              "ref": "linux-5.10.y",
+              "url": "https://github.com/gregkh/linux/commit/ae5d0d9ce767b20a5580bb6dc5e06f3e1b8a0fb0",
+              "match_type": "list-suffix-after-prefix"
+            }
           },
           {
             "branch": "linux-6.6.y",
@@ -157,7 +165,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-23T06:59:00+00:00",
+      "last_checked_at": "2026-08-23T12:59:47+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -190,7 +198,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-23T06:59:14+00:00",
+      "last_checked_at": "2026-08-23T12:59:52+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -218,7 +226,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-23T06:59:21+00:00",
+      "last_checked_at": "2026-08-23T12:59:55+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -246,7 +254,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-08-23T06:59:28+00:00",
+      "last_checked_at": "2026-08-23T12:59:58+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
