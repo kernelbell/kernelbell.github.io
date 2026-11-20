@@ -15,6 +15,10 @@
     "use-nla-policy-for-parsing": {
       "mainline": "5036034572b79daa6d6600338e8e8229e2a44b09",
       "mainline_notified_at": "2026-06-25T04:22:45+00:00"
+    },
+    "do-not-free-a-new-asoc-peeled-off-while-sendmsg-slept": {
+      "mainline": "f2540da93a113d3f0a70fd0961e00eb849ce8342",
+      "mainline_notified_at": "2026-11-20T20:07:48+00:00"
     }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-20T07:06:58+00:00",
+  "generated_at": "2026-11-20T20:07:48+00:00",
   "patches": [
     {
       "id": "fix-double-dst-release-on-sk-dst-cache-race",
@@ -12,7 +12,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-11-20T07:05:39+00:00",
+      "last_checked_at": "2026-11-20T20:06:33+00:00",
       "mainline": {
         "enabled": true,
         "found": false,
@@ -42,7 +42,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-11-20T07:05:56+00:00",
+      "last_checked_at": "2026-11-20T20:06:48+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -73,7 +73,7 @@
       ],
       "stable_branches": [],
       "enabled": true,
-      "last_checked_at": "2026-11-20T07:06:11+00:00",
+      "last_checked_at": "2026-11-20T20:07:03+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -106,7 +106,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-11-20T07:06:12+00:00",
+      "last_checked_at": "2026-11-20T20:07:03+00:00",
       "mainline": {
         "enabled": true,
         "found": true,
@@ -149,7 +149,7 @@
         "linux-6.6.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-11-20T07:06:25+00:00",
+      "last_checked_at": "2026-11-20T20:07:16+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -182,7 +182,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-11-20T07:06:38+00:00",
+      "last_checked_at": "2026-11-20T20:07:28+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -210,7 +210,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-11-20T07:06:44+00:00",
+      "last_checked_at": "2026-11-20T20:07:35+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -238,7 +238,7 @@
         "linux-5.10.y"
       ],
       "enabled": true,
-      "last_checked_at": "2026-11-20T07:06:51+00:00",
+      "last_checked_at": "2026-11-20T20:07:41+00:00",
       "mainline": {
         "enabled": false,
         "found": false,
@@ -253,6 +253,34 @@
             "commit": null
           }
         ]
+      },
+      "errors": []
+    },
+    {
+      "id": "do-not-free-a-new-asoc-peeled-off-while-sendmsg-slept",
+      "title": "do not free a new asoc peeled off while sendmsg slept",
+      "targets": [
+        "mainline"
+      ],
+      "stable_branches": [],
+      "enabled": true,
+      "last_checked_at": "2026-11-20T20:07:46+00:00",
+      "mainline": {
+        "enabled": true,
+        "found": true,
+        "commit": {
+          "hash": "f2540da93a113d3f0a70fd0961e00eb849ce8342",
+          "subject": "sctp: do not free a new asoc peeled off while sendmsg slept",
+          "committed_at": "2026-11-12T18:21:49.000+01:00",
+          "author": "Yves Bieri",
+          "ref": "master",
+          "url": "https://github.com/torvalds/linux/commit/f2540da93a113d3f0a70fd0961e00eb849ce8342",
+          "match_type": "search-suffix-after-prefix"
+        }
+      },
+      "stable": {
+        "found": false,
+        "branches": []
       },
       "errors": []
     }
