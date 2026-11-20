@@ -91,5 +91,16 @@
       "lixiasong1@huawei.com"
     ],
     "enabled": true
+  },
+  {
+    "id": "do-not-free-a-new-asoc-peeled-off-while-sendmsg-slept",
+    "title": "do not free a new asoc peeled off while sendmsg slept",
+    "targets": [
+      "mainline"
+    ],
+    "notify": [
+      "lixiasong1@huawei.com"
+    ],
+    "enabled": true
   }
 ]
